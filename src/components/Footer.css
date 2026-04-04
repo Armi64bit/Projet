@@ -1,0 +1,40 @@
+.footer {
+  background: var(--black-2);
+  border-top: 1px solid var(--black-4);
+  margin-top: auto;
+}
+.footer-inner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 60px;
+  padding: 48px 24px;
+}
+.footer-logo {
+  font-family: var(--font-heading);
+  font-size: 24px; font-weight: 900;
+  display: block; margin-bottom: 12px;
+}
+.footer-logo .logo-game { color: var(--white); }
+.footer-logo .logo-souk { color: var(--red); }
+.footer-brand p { color: var(--gray); font-size: 14px; line-height: 1.7; }
+
+.footer-links { display: flex; gap: 60px; }
+.footer-col { display: flex; flex-direction: column; gap: 10px; }
+.footer-col h4 { font-family: var(--font-heading); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); margin-bottom: 4px; }
+.footer-col a { font-size: 14px; color: var(--gray-light); transition: color 0.2s; }
+.footer-col a:hover { color: var(--red); }
+
+.footer-bottom {
+  border-top: 1px solid var(--black-3);
+  padding: 16px 24px;
+}
+.footer-bottom .container {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: var(--gray);
+}
+
+@media (max-width: 768px) {
+  .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+  .footer-links { flex-wrap: wrap; gap: 32px; }
+  .footer-bottom .container { flex-direction: column; gap: 4px; text-align: center; }
+}

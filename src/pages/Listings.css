@@ -1,0 +1,93 @@
+.listings-page { padding: 40px 0 80px; }
+
+.listings-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.listings-page-header h1 {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.results-count { color: var(--gray); font-size: 14px; }
+
+.category-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+.cat-tab {
+  padding: 8px 16px;
+  background: var(--black-3);
+  border: 1px solid var(--black-5);
+  border-radius: 20px;
+  color: var(--gray-light);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.cat-tab:hover { border-color: var(--red); color: var(--white); }
+.cat-tab.active { background: var(--red); border-color: var(--red); color: white; }
+
+.listings-page-body {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.filters-sidebar {
+  background: var(--black-2);
+  border: 1px solid var(--black-4);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 80px;
+}
+
+.filter-group { display: flex; flex-direction: column; gap: 8px; }
+.filter-group label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); }
+
+.filter-input {
+  background: var(--black-3);
+  border: 1px solid var(--black-5);
+  border-radius: var(--radius);
+  color: var(--white);
+  padding: 10px 12px;
+  font-size: 14px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.filter-input:focus { border-color: var(--red); }
+.filter-input option { background: var(--black-3); }
+
+.price-range { display: flex; align-items: center; gap: 8px; }
+.price-range span { color: var(--gray); }
+.price-range .filter-input { width: auto; flex: 1; }
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: var(--gray);
+  gap: 16px;
+  font-size: 16px;
+}
+.no-results span { font-size: 48px; }
+
+@media (max-width: 768px) {
+  .listings-page-body { grid-template-columns: 1fr; }
+  .filters-sidebar { position: static; }
+}
