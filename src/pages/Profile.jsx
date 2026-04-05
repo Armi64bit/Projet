@@ -25,13 +25,22 @@ export default function Profile() {
   const isOwnProfile = Boolean(user && profileUser && user.id === profileUser.id)
 
   useEffect(() => {
-    const u = db.getUserByUsername(username)
-    if (u) {
-      setProfileUser(u)
-      setListings(db.getUserListings(u.id))
-      setForm({ username: u.username || '', bio: u.bio || '' })
-      setAvatarPreview(isAvatarImage(u.avatar) ? u.avatar : '')
+    const loadProfile = async () => {
+      try {
+        const u = await db.getUserByUsername(username)
+        if (u) {
+          setProfileUser(u)
+          const userListings = await db.getUserListings(u.id)
+          setListings(userListings)
+          setForm({ username: u.username || '', bio: u.bio || '' })
+          setAvatarPreview(isAvatarImage(u.avatar) ? u.avatar : '')
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error)
+      }
     }
+    
+    loadProfile()
   }, [username])
 
   const handlePhotoUpload = (e) => {
@@ -47,20 +56,25 @@ export default function Profile() {
     reader.readAsDataURL(file)
   }
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault()
-    const ok = updateProfile({
+    const ok = await updateProfile({
       username: form.username,
       bio: form.bio,
       avatar: avatarPreview || (form.username || profileUser.username).slice(0, 2).toUpperCase()
     })
 
     if (ok) {
-      const refreshed = db.getUser(user.id)
-      if (refreshed) {
-        setProfileUser(refreshed)
-        setListings(db.getUserListings(refreshed.id))
-        navigate(`/profile/${refreshed.username}`, { replace: true })
+      try {
+        const refreshed = await db.getUser(user.id)
+        if (refreshed) {
+          setProfileUser(refreshed)
+          const userListings = await db.getUserListings(refreshed.id)
+          setListings(userListings)
+          navigate(`/profile/${refreshed.username}`, { replace: true })
+        }
+      } catch (error) {
+        console.error('Error refreshing profile:', error)
       }
     }
   }

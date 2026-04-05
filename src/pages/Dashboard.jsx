@@ -19,23 +19,44 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) { navigate('/login'); return }
-    setListings(db.getUserListings(user.id))
-  }, [user])
+    
+    const loadUserListings = async () => {
+      try {
+        const userListings = await db.getUserListings(user.id)
+        setListings(userListings)
+      } catch (error) {
+        console.error('Error loading user listings:', error)
+      }
+    }
+    
+    loadUserListings()
+  }, [user, navigate])
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!confirm('Delete this listing?')) return
-    db.deleteListing(id)
-    setListings(prev => prev.filter(l => l.id !== id))
-    addToast('Listing deleted', 'success')
+    try {
+      await db.deleteListing(id)
+      setListings(prev => prev.filter(l => l.id !== id))
+      addToast('Listing deleted', 'success')
+    } catch (error) {
+      console.error('Error deleting listing:', error)
+      addToast('Failed to delete listing', 'error')
+    }
   }
 
-  const handleToggleSold = (id) => {
-    const l = db.getListing(id)
-    const newStatus = l.status === 'sold' ? 'active' : 'sold'
-    const soldAt = newStatus === 'sold' ? new Date().toISOString().split('T')[0] : null
-    db.updateListing(id, { status: newStatus, soldAt })
-    setListings(db.getUserListings(user.id))
-    addToast(`Marked as ${newStatus}`, 'success')
+  const handleToggleSold = async (id) => {
+    try {
+      const l = await db.getListing(id)
+      const newStatus = l.status === 'sold' ? 'active' : 'sold'
+      const soldAt = newStatus === 'sold' ? new Date().toISOString().split('T')[0] : null
+      await db.updateListing(id, { status: newStatus, soldAt })
+      const userListings = await db.getUserListings(user.id)
+      setListings(userListings)
+      addToast(`Marked as ${newStatus}`, 'success')
+    } catch (error) {
+      console.error('Error toggling sold status:', error)
+      addToast('Failed to update listing', 'error')
+    }
   }
 
   return (

@@ -20,27 +20,38 @@ export default function Sell() {
 
   useEffect(() => {
     if (!isEditing) return
-    const listing = db.getListing(editId)
-    if (!listing) {
-      addToast('Listing not found', 'error')
-      navigate('/dashboard')
-      return
-    }
-    if (listing.sellerId !== user?.id) {
-      addToast('You can only edit your own listing', 'error')
-      navigate('/dashboard')
-      return
-    }
+    
+    const loadListing = async () => {
+      try {
+        const listing = await db.getListing(editId)
+        if (!listing) {
+          addToast('Listing not found', 'error')
+          navigate('/dashboard')
+          return
+        }
+        if (listing.sellerId !== user?.id) {
+          addToast('You can only edit your own listing', 'error')
+          navigate('/dashboard')
+          return
+        }
 
-    setForm({
-      title: listing.title || '',
-      description: listing.description || '',
-      category: listing.category || 'consoles',
-      condition: listing.condition || 'Good',
-      price: String(listing.price ?? ''),
-      location: listing.location || 'Tunis'
-    })
-    setPreviews(Array.isArray(listing.images) ? listing.images : [])
+        setForm({
+          title: listing.title || '',
+          description: listing.description || '',
+          category: listing.category || 'consoles',
+          condition: listing.condition || 'Good',
+          price: String(listing.price ?? ''),
+          location: listing.location || 'Tunis'
+        })
+        setPreviews(Array.isArray(listing.images) ? listing.images : [])
+      } catch (error) {
+        console.error('Error loading listing:', error)
+        addToast('Failed to load listing', 'error')
+        navigate('/dashboard')
+      }
+    }
+    
+    loadListing()
   }, [isEditing, editId, user, addToast, navigate])
 
   const handleFileChange = async (e) => {
@@ -88,13 +99,14 @@ export default function Sell() {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.title || !form.price || !form.description) {
       addToast('Please fill all required fields', 'error'); return
     }
     setLoading(true)
-    setTimeout(() => {
+    
+    try {
       const payload = {
         ...form,
         price: Number(form.price),
@@ -104,14 +116,19 @@ export default function Sell() {
       }
 
       if (isEditing) {
-        db.updateListing(editId, payload)
+        await db.updateListing(editId, payload)
         addToast('Listing updated successfully ✨', 'success')
       } else {
-        db.createListing(payload)
+        await db.createListing(payload)
         addToast('Listing posted successfully! 🎮', 'success')
       }
       navigate('/dashboard')
-    }, 600)
+    } catch (error) {
+      console.error('Error saving listing:', error)
+      addToast('Failed to save listing', 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

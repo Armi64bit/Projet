@@ -35,8 +35,20 @@ export default function Home() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    setListings(db.getListings().slice(0, 8))
-    setStats(db.getStats())
+    const loadData = async () => {
+      try {
+        const [listingsData, statsData] = await Promise.all([
+          db.getListings(),
+          db.getStats()
+        ])
+        setListings(listingsData.slice(0, 8))
+        setStats(statsData)
+      } catch (error) {
+        console.error('Error loading data:', error)
+      }
+    }
+    
+    loadData()
   }, [])
 
   const handleSearch = (e) => {

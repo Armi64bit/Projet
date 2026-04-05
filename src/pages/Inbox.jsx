@@ -32,54 +32,57 @@ export default function Inbox() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const loadConversations = () => {
-    const convs = db.getConversations(user.id)
-    setConversations(convs)
+  const loadConversations = async () => {
+    try {
+      const convs = await db.getConversations(user.id)
+      setConversations(convs)
+    } catch (error) {
+      console.error('Error loading conversations:', error)
+    }
   }
 
-  const openConversation = (conv) => {
+  const openConversation = async (conv) => {
     setActiveConv(conv)
-    const msgs = db.getMessages(conv.id)
-    setMessages(msgs)
-    db.markRead(conv.id, user.id)
-    navigate(`/inbox/${conv.id}`, { replace: true })
+    try {
+      const msgs = await db.getMessages(conv.id)
+      setMessages(msgs)
+      // Note: markRead function doesn't exist in our API, skipping for now
+      navigate(`/inbox/${conv.id}`, { replace: true })
+    } catch (error) {
+      console.error('Error opening conversation:', error)
+    }
   }
 
-  const sendMessage = (e) => {
+  const sendMessage = async (e) => {
     e.preventDefault()
     if (!input.trim() || !activeConv) return
-    const msg = db.sendMessage(activeConv.id, user.id, input.trim())
-    setMessages(prev => [...prev, msg])
-    setInput('')
-    loadConversations()
-
-    // Simulate reply after 1-2s
-    const delay = 1000 + Math.random() * 1000
-    setTyping(true)
-    typingTimerRef.current = setTimeout(() => {
-      const replies = [
-        "Hey! Is this still available?",
-        "Can you do a better price?",
-        "I'm interested! Where are you located?",
-        "Is there any warranty?",
-        "Can I see more photos?",
-        "What's the lowest you'd go?",
-        "Perfect condition?",
-        "I can pick it up today if you want!"
-      ]
-      const reply = db.sendMessage(activeConv.id, activeConv.otherUser?.id || '2', replies[Math.floor(Math.random() * replies.length)])
-      setMessages(prev => [...prev, reply])
-      setTyping(false)
+    try {
+      const msg = await db.createMessage({
+        conversationId: activeConv.id,
+        senderId: user.id,
+        content: input.trim()
+      })
+      setMessages(prev => [...prev, msg])
+      setInput('')
       loadConversations()
-    }, delay)
+    } catch (error) {
+      console.error('Error sending message:', error)
+      addToast('Failed to send message', 'error')
+    }
   }
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(e) }
   }
 
-  const getUnreadCount = (conv) => {
-    return db.getMessages(conv.id).filter(m => !m.read && m.senderId !== user.id).length
+  const getUnreadCount = async (conv) => {
+    try {
+      const messages = await db.getMessages(conv.id)
+      return messages.filter(m => !m.read && m.senderId !== user.id).length
+    } catch (error) {
+      console.error('Error getting unread count:', error)
+      return 0
+    }
   }
 
   const formatTime = (ts) => {

@@ -17,8 +17,16 @@ export default function Listings() {
   })
 
   useEffect(() => {
-    const results = db.getListings(filters)
-    setListings(results)
+    const loadListings = async () => {
+      try {
+        const results = await db.getListings(filters)
+        setListings(results)
+      } catch (error) {
+        console.error('Error loading listings:', error)
+      }
+    }
+    
+    loadListings()
   }, [filters])
 
   const updateFilter = (key, val) => {

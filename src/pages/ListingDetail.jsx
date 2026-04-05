@@ -17,18 +17,46 @@ export default function ListingDetail() {
   const navigate = useNavigate()
   const [listing, setListing] = useState(null)
   const [imgIdx, setImgIdx] = useState(0)
+  const [seller, setSeller] = useState(null)
+  const [sellerListings, setSellerListings] = useState([])
 
   useEffect(() => {
-    const l = db.getListing(id)
-    if (!l) navigate('/listings')
-    else setListing(l)
-  }, [id])
+    const loadListing = async () => {
+      try {
+        const l = await db.getListing(id)
+        if (!l) {
+          navigate('/listings')
+          return
+        }
+        setListing(l)
+        
+        // Load seller info and seller's other listings
+        const [sellerInfo, sellerListingsData] = await Promise.all([
+          db.getUser(l.sellerId),
+          db.getUserListings(l.sellerId)
+        ])
+        
+        setSeller(sellerInfo)
+        setSellerListings(sellerListingsData.filter(listing => listing.id !== id).slice(0, 4))
+      } catch (error) {
+        console.error('Error loading listing:', error)
+        navigate('/listings')
+      }
+    }
+    
+    loadListing()
+  }, [id, navigate])
 
-  const handleMessage = () => {
+  const handleMessage = async () => {
     if (!user) { addToast('Please login to message the seller', 'error'); navigate('/login'); return; }
     if (user.id === listing.sellerId) { addToast('This is your own listing!', 'info'); return; }
-    const conv = db.getOrCreateConversation(user.id, listing.sellerId, listing.id)
-    navigate(`/inbox/${conv.id}`)
+    try {
+      const conv = await db.getOrCreateConversation(user.id, listing.sellerId, listing.id)
+      navigate(`/inbox/${conv.id}`)
+    } catch (error) {
+      console.error('Error creating conversation:', error)
+      addToast('Failed to start conversation', 'error')
+    }
   }
 
   if (!listing) return <div className="loading">Loading...</div>
@@ -44,9 +72,6 @@ export default function ListingDetail() {
 
   const handlePrevImage = () => goToImage(imgIdx - 1)
   const handleNextImage = () => goToImage(imgIdx + 1)
-
-  const seller = db.getUser(listing.sellerId)
-  const sellerListings = db.getUserListings(listing.sellerId).filter(l => l.id !== id).slice(0, 4)
 
   return (
     <div className="listing-detail page-enter">
