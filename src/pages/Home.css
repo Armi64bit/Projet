@@ -13,6 +13,21 @@
   position: absolute;
   inset: 0;
   z-index: 0;
+  background: linear-gradient(45deg, #1a1a1a, #2d1810, #1a1a1a, #18182d, #1a1a1a);
+  background-size: 400% 400%;
+  animation: heroGradient 15s ease infinite;
+}
+
+@keyframes heroGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .hero-grid {
@@ -22,6 +37,16 @@
     linear-gradient(rgba(230,51,41,0.06) 1px, transparent 1px),
     linear-gradient(90deg, rgba(230,51,41,0.06) 1px, transparent 1px);
   background-size: 60px 60px;
+  animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(60px, 60px);
+  }
 }
 
 .hero-glow {
@@ -32,6 +57,18 @@
   width: 800px;
   height: 500px;
   background: radial-gradient(ellipse, rgba(230,51,41,0.15) 0%, transparent 70%);
+  animation: glowPulse 8s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.1);
+  }
 }
 
 .hero-content {

@@ -90,6 +90,12 @@ export default function Home() {
             <div className="hero-stat"><AnimatedCount value={stats.activeListings} /><label>Active Listings</label></div>
             <div className="hero-stat"><AnimatedCount value={stats.gamers} /><label>Gamers</label></div>
             <div className="hero-stat"><AnimatedCount value={stats.dailySales} /><label>Daily Sales</label></div>
+                  <br />
+        <br />
+        <br />
+        <br />
+        <br />
+
           </div>
         </div>
       </section>
